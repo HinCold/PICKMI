@@ -7,6 +7,7 @@ import pymssql
 user = 'test'
 pwd = 'test'
 app = Flask(__name__)
+order_number = 1
 # 查询是否有订单未完成
 # 反馈实时位置
 # 查询订单状态
@@ -74,6 +75,7 @@ def takeTwcOrder():
     '''
     updata database
     '''
+
     res = {
         "status": 0,
         "data": {
@@ -85,11 +87,13 @@ def takeTwcOrder():
 # passager Release tail wind car order 乘客发布顺风车订单
 @app.route('/twcar/release')
 def releaseTwcOrder():
+
     startPlace = request.form.get("stp")
     destination = request.form.get("des")
     '''
     add into database
     '''
+
     orderid = 1
     res = {
         "status": 0,
@@ -131,7 +135,6 @@ def query_deposit():
     username = request.form.get("user")
     '''
     query database
-    
     '''
     deposit = 1
     res = {
@@ -160,9 +163,27 @@ def deposit():
 # valid 认证
 @app.route('/driver/valid', methods=['POST'])
 def dri_valid():
+    username = request.form.get("user")
     name = request.form.get("name")
+    sex = request.form.get("sex")
     idnum = request.form.get("idnum")
-    carnum = request.form.get("carnum")
+    # carnum = request.form.get("carnum")
+    con = pymssql.connect('127.0.0.1', 'test', '123', 'pickme')
+    cursor = con.cursor()
+    sql = "SELECT dusername FROM driver where dusername='{}'".format(username)
+    cursor.execute(sql)
+    result = cursor.fetchone()
+    if result == None:
+        msg = 'you have already register'
+    else:
+
+        sql = "SELECT userid FROM driver where userid='{}'".format(idnum)
+        cursor.execute(sql)
+        idout = cursor.fetchone()
+        if idout == None:
+            sql = "insert into driver(dusername,dname,dsex,userid) values('{}','{}','{}','{}')".format(username, name, sex, idnum)
+            con.commit()
+    cursor.close()
     res = {
         "status": 0,
         "msg": "success"
@@ -174,17 +195,35 @@ def dri_valid():
 @app.route('/info')
 def get_info():
     username = request.args.get("user")
+
     '''
     query database
     '''
-    if username:
-        res = {
-            "status": 0,
-            "data": {
-                "msg": "seccess"
-            }
+    con = pymssql.connect('127.0.0.1', 'test', '123', 'pickme')
+    cursor = con.cursor()
+    # print(cursor)
+    sql = "SELECT username FROM users where username='{}'".format(username)
+    cursor.execute(sql)
+    res = cursor.fetchone()
+
+    if res == None:
+        msg = 'can not find the user'
+    else:
+        sql = "SELECT * FROM users where username='{}'".format(username)
+        cursor.execute(sql)
+        result = cursor.fetchone()
+        '''
+        return result
+        '''
+        msg = 'success'
+    cursor.close()
+    res = {
+        "status": 0,
+        "data": {
+            "msg": msg
         }
-        return json.dumps(res)
+    }
+    return json.dumps(res)
 
 
 # register 注测
@@ -192,14 +231,29 @@ def get_info():
 def register():
     username = request.form.get('user')
     password = request.form.get('pwd')
-    identify = request.form.get('identify')
+    # identify = request.form.get('identify')
     '''
     add new user into database
     '''
-
+    con = pymssql.connect('127.0.0.1', 'test', '123', 'pickme')
+    cursor = con.cursor()
+    # print(cursor)
+    sql = "SELECT username FROM users where username='{}'".format(username)
+    cursor.execute(sql)
+    res = cursor.fetchone()
+    if res == None:
+        sql = "insert into users values('{}','{}')".format(username, password)
+        cursor.execute(sql)
+        con.commit()
+        msg = 'success'
+    else:
+           msg = 'username has been registered'
+    # res = cursor.fetchone()
+    # print(res)
+    cursor.close()
     res = {
         "status": 0,
-        "msg":"seccess"
+        "msg": msg
     }
     return json.dumps(res)
 
@@ -209,7 +263,7 @@ def register():
 def login():
     username = request.form.get('user')
     password = request.form.get('pwd')
-    identify = request.form.get('identify')
+    # identify = request.form.get('identify')
     if username == None or password == None:
         res = {
             "status": 1000,
@@ -219,6 +273,7 @@ def login():
     '''
     query database
     '''
+
     con = pymssql.connect('127.0.0.1', 'test', '123', 'pickme')
     cursor = con.cursor()
     # print(cursor)
@@ -227,6 +282,7 @@ def login():
     # print(res)
     user = res[0].strip()
     pwd = res[1].strip()
+
     cursor.close()
     if username == user and password == pwd:
         res = {
