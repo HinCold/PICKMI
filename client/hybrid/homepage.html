@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<style>
+			* {
+		  margin: 0;
+		  padding: 0;
+		}
+		.box{
+			width:55%;
+			height:1740px;
+			line-height: 1667px;
+			background-color: rgba(255,255,255,0.7);
+			position:relative;
+			z-index:999999;
+		}
+        #container{  
+            width:100%;  
+            height:1740px;  
+			position:absolute;
+			left:0px;
+			top:0px;
+        }
+		.round_icon{
+		  width: 200px;
+		  height: 200px;
+		  border-radius: 50%;
+		  /* display: flex;
+		  align-items: center;
+		  justify-content: center;
+		  overflow: hidden; */
+		  margin:auto;
+		  position: absolute;
+		  top:50px;
+		  left:170px;
+		}
+		.account{
+			width:539px;
+			height: 80px;
+			line-height: 80px;
+			color:rgba(0,0,0,0.8);
+			border:2px solid #8B8989;
+			text-align:center;
+			font:normal normal 50px "微软雅黑";
+			position: absolute;
+			top: 400px;
+			border-radius: 20px;
+		}
+		.fast-car{
+			width:539px;
+			height: 80px;
+			line-height: 80px;
+			color:rgba(0,0,0,0.8);
+			border:2px solid #8B8989;
+			text-align:center;
+			font:normal normal 50px "微软雅黑";
+			position: absolute;
+			top: 550px;
+			border-radius: 20px;
+		}
+		.free-car{
+			width:539px;
+			height: 80px;
+			line-height: 80px;
+			color:rgba(0,0,0,0.8);
+			border:2px solid #8B8989;
+			text-align:center;
+			font:normal normal 50px "微软雅黑";
+			position: absolute;
+			top: 700px;
+			border-radius: 20px;
+		}
+		.rent-car{
+			width:539px;
+			height: 80px;
+			line-height: 80px;
+			color:rgba(0,0,0,0.8);
+			border:2px solid #8B8989;
+			text-align:center;
+			font:normal normal 50px "微软雅黑";
+			position: absolute;
+			top: 850px;
+			border-radius: 20px;
+		}
+		.car-repair{
+			width:539px;
+			height: 80px;
+			line-height: 80px;
+			color:rgba(0,0,0,0.8);
+			border:2px solid #8B8989;
+			text-align:center;
+			font:normal normal 50px "微软雅黑";
+			position: absolute;
+			top: 1000px;
+			border-radius: 20px;
+		}
+		.history{
+			width:539px;
+			height: 80px;
+			line-height: 80px;
+			color:rgba(0,0,0,0.8);
+			border:2px solid #8B8989;
+			text-align:center;
+			font:normal normal 50px "微软雅黑";
+			position: absolute;
+			top: 1150px;
+			border-radius: 20px;
+		}
+		.exit{
+			width:120px;
+			height: 60px;
+			line-height: 60px;
+			color:red;
+			background-color: rgba(255,255,255,0.7);
+			border:1.5px solid white;
+			text-align:center;
+			font:normal normal 30px "微软雅黑";
+			position: absolute;
+			top: 1620px;
+			border-radius: 20px;
+		}
+		</style>
+	</head>
+
+	<body>
+		<div class="box">
+			<img src="img/hh.jpg" class="round_icon"  alt="">
+			<div class="account" onclick="tz1()">账户信息</div>
+			<div class="fast-car" onclick="tz2()">快车</div>
+			<div class="free-car" onclick="tz3()">顺风车</div>
+			<div class="rent-car" onclick="tz4()">短租车</div>
+			<div class="car-repair" onclick="tz5()">车辆维修</div>
+			<div class="history" onclick="tz6()">我的行程</div>
+			<button class="exit" type="button" onclick="quit()">退出</button>
+		</div>
+		<div id="container"></div>
+		<script src="../public/js/jquery-3.0.0.min.js"></script>
+		<script src="http://webapi.amap.com/maps?v=1.4.0&amp;key=88677a1eeae5f527e0cbf0d0a537de11&callback=init"></script>
+		<script>
+		    function init(){
+		        var map, geolocation;
+		//        实例化地图
+		        var map = new AMap.Map('container', {
+		//            resizeEnable: true,
+		        });
+		//        配置插件AMap.Geolocation
+		        map.plugin('AMap.Geolocation', function () {
+		            geolocation = new AMap.Geolocation({
+		                enableHighAccuracy: false,//是否使用高精度定位，默认:true
+		                timeout: 10000,          //超过10秒后停止定位，默认：无穷大
+		                maximumAge: 0,           //定位结果缓存0毫秒，默认：0
+		                convert: true,           //自动偏移坐标，偏移后的坐标为高德坐标，默认：true
+		                showButton: true,        //显示定位按钮，默认：true
+		                buttonPosition: 'LB',    //定位按钮停靠位置，默认：'LB'，左下角
+		                buttonOffset: new AMap.Pixel(10, 20),//定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+		                showMarker: true,        //定位成功后在定位到的位置显示点标记，默认：true
+		                showCircle: true,        //定位成功后用圆圈表示定位精度范围，默认：true
+		                panToLocation: true,     //定位成功后将定位到的位置作为地图中心点，默认：true
+		                zoomToAccuracy:true      //定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+		            });
+		            map.addControl(geolocation);
+		            geolocation.getCurrentPosition();
+		            AMap.event.addListener(geolocation, 'complete', onComplete);//返回定位信息
+		            AMap.event.addListener(geolocation, 'error', onError);      //返回定位出错信息
+		//  把当前的位置信息放到页面中
+		            function onComplete(data) {
+		               $('#container').html(data.formattedAddress)
+		            }
+		//            如果报错把报错信息输出
+		            function onError(data) {
+		                console.log(data)
+		            }
+		        });
+		    }
+			function tz1(){
+				window.location.href='account.html';
+			}
+			function tz2(){
+				window.location.href='fast-car.html';
+			}
+			function tz3(){
+				window.location.href='free-car.html';
+			}
+			function tz4(){
+				window.location.href='rent-car.html';
+			}
+			function tz5(){
+				window.location.href='car-repair.html';
+			}
+			function tz6(){
+				window.location.href='history.html';
+			}
+			function quit(){
+				window.location.href='login.html';
+			}
+		</script>
+	</body>
+</html>
