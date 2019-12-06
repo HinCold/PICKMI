@@ -12,14 +12,14 @@ from flask_cors import *
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
-
+my = PYSQL('localhost', 'test', '123', 'pickme')
 
 # type == 0:乘客 ？ 1 ：司机
 @app.route('/rent/finish')
 def finish1():
     oid = request.args.get('oid')
     type = request.args.get('type')
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "select finish from orders where orderid={}".format(oid)
     result = my.select_data(sql)
     print(result)
@@ -47,7 +47,7 @@ def finish1():
 def getRentcar_finish():
     username = request.args.get('user')
     type = request.args.get('type')
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
 
     if int(type) == 1:
         sql = "select * from orders where finish is NULL and dusername='{}'".format(username)
@@ -118,7 +118,7 @@ def getRentcar_data():
     sdate = request.args.get("sdate")
     edate = request.args.get("edate")
     data = []
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "SELECT orderid,dusername,startpoint,cycle FROM orders WHERE susername is NULL AND rent_car = 1 AND  sdate = '{}' AND edate = '{}'".format(sdate, edate)
     data1 = my.select_data(sql)
     for vi in data1:
@@ -144,7 +144,7 @@ def getRentcar_data():
 def takeRentOrder():
     oid = request.args.get("oid")
     user = request.args.get("user")
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "UPDATE orders SET susername ='{}' WHERE orderid = '{}'".format(user,oid)
     my.update_data(sql)
     my.close()
@@ -172,7 +172,7 @@ def releaseRentar():
     adress = request.args.get("adr")
     price = request.args.get("price")
     cycle = request.args.get("cycle")
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "INSERT INTO orders(dusername,rent_car,sdate,edate,startpoint,price,cycle) VALUES ('{}',1 ,'{}','{}','{}','{}','{}')".format(did, sdate, edate, adress, price, cycle)
     my.insert_date(sql)
     sql = "SELECT orderid FROM orders WHERE dusername = '{}' AND rent_car=1 AND sdate = '{}' AND edate = '{}' AND startpoint = '{}' AND price = '{}' AND cycle ='{}'".format(did, sdate, edate, adress, price, cycle)
@@ -195,7 +195,7 @@ def releaseRentar():
 @app.route('/driver/rentcar/data')
 def getRent_data():
     oid = request.args.get("oid")
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql ="SELECT susername FROM orders WHERE orderid = '{}'".format(oid)
     data1 = my.select_data(sql)
     data2 = data1[0]
@@ -229,7 +229,7 @@ def remark():
     ident = request.form.get('ide')
     oid = request.form.get('oid')
     remark = request.form.get('remark')
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     if ident == 'passager':
         sql = "insert into order(comment1) values('{}') where orderid='{}'".format(remark, oid)
     else:
@@ -249,7 +249,7 @@ def getquikcar_data():
     '''
     requery database
     '''
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "SELECT dusername FROM orders WHERE orderid = '{}'".format(oid)
     did1 = my.select_data(sql)
     did2 = did1[0]
@@ -278,7 +278,7 @@ def takeQcOrder():
     '''
     updata database
     '''
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "UPDATE orders SET dusername ='{}' WHERE orderid ='{}'".format(driverid, oid)
     my.update_data(sql)
     sql = "SELECT susername FROM orders WHERE orderid = '{}'".format(oid)
@@ -314,7 +314,7 @@ def releaseQcar():
     '''
     add into database
     '''
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "INSERT INTO orders(susername,fast_car,startpoint,endpoint,sdate,stime) VALUES('{}',1,'{}','{}','{}','{}')".format(username,startPlace,destination, date,time)
     my.insert_date(sql)
     sql =  "SELECT orderid FROM orders WHERE susername='{}' AND startpoint ='{}' AND endpoint = '{}'AND sdate ='{}'AND stime ='{}'".format(username, startPlace, destination, date,time)
@@ -345,7 +345,7 @@ def getTwc_data():
     requery database
     '''
     if order =='1':
-        my = PYSQL('localhost', 'test', '123', 'pickme')
+        my.connect()
         sql = "SELECT orderid,susername,startpoint,endpoint FROM orders WHERE dusername is NULL AND fast_car = 1 AND  sdate = '{}' AND stime BETWEEN '{}' AND '{}' order by orderid desc".format(
             date, time1, time2)
         data1 = my.select_data(sql)
@@ -359,7 +359,7 @@ def getTwc_data():
                      "age": data3[2]}
             data.append(data4)
     else:
-        my = PYSQL('localhost', 'test', '123', 'pickme')
+        my.connect()
         sql1 = "SELECT orderid,susername,startpoint,endpoint FROM orders WHERE dusername is NULL AND free_ride = 1 AND  sdate = '{}' AND stime BETWEEN '{}' AND '{}'".format(
             date, time1, time2)
         print(sql1)
@@ -392,7 +392,7 @@ def takeTwcOrder():
     '''
     updata database
     '''
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "UPDATE orders SET dusername ='{}' WHERE orderid ='{}'".format(username,oid)
     my.update_data(sql)
     sql = "SELECT susername FROM orders WHERE orderid = '{}'".format(oid)
@@ -427,7 +427,7 @@ def releaseTwcOrder():
     '''
     add into database
     '''
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "INSERT INTO orders(susername,free_ride,startpoint,endpoint,sdate,stime) VALUES('{}',1,'{}','{}','{}','{}')".format(username,startPlace,destination, date,time)
     my.insert_date(sql)
     sql =  "SELECT orderid FROM orders WHERE susername='{}' AND startpoint ='{}' AND endpoint = '{}'AND sdate ='{}'AND stime ='{}'".format(username, startPlace, destination, date,time)
@@ -456,7 +456,7 @@ def refund():
     '''
     query database
     '''
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "SELECT deposit FROM orders WHERE orderid ='{}'".format(oid)
     deposit1 =my.select_data(sql)
     sql = "UPDATE orders SET deposit=0 WHERE orderid ='{}'".format(oid)
@@ -489,7 +489,7 @@ def query_deposit():
     query database
     '''
     if deposit:
-        my = PYSQL('localhost', 'test', '123', 'pickme')
+        my.connect()
         sql ="UPDATE orders SET deposit={} WHERE orderid ='{}'".format(deposit, oid)
         my.update_data(sql)
         my.close()
@@ -515,7 +515,7 @@ def deposit():
     '''
     add into database
     '''
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "SELECT deposit FROM orders WHERE orderid ='{}'".format(oid)
     data1 = my.select_data(sql)
     my.close()
@@ -553,12 +553,12 @@ def valid():
     print(f)
     print(f1)
     # insert into database
-    my = PYSQL('localhost', 'test', '123', 'pickme')
-    # sql1 = "insert into student(susername, sname, ssex, userid, useridphoto, sinfo, sidphoto, stel) " \
-    #       "values('{}','{}','{}','{}','{}','{}','{}','{}')".format(username, sname, ssex, userid, useridphoto, sinfo,
-    #                                                          sidphoto, stel)
-    sql = "insert into student(susername, sname, ssex, userid, sinfo, stel) values('{}','{}','{}','{}','{}','{}')".format(username, sname, ssex, userid, sinfo, stel)
-    result = my.insert_date(sql)
+    my.connect()
+    sql1 = "insert into student(susername, sname, ssex, userid, useridphoto, sinfo, sidphoto, stel) " \
+          "values('{}','{}','{}','{}','{}','{}','{}','{}')".format(username, sname, ssex, userid, useridphoto, sinfo,
+                                                             sidphoto, stel)
+    # sql = "insert into student(susername, sname, ssex, userid, sinfo, stel) values('{}','{}','{}','{}','{}','{}')".format(username, sname, ssex, userid, sinfo, stel)
+    result = my.insert_date(sql1)
     if result:
         msg = 'success'
         status = 1
@@ -595,40 +595,29 @@ def dri_valid():
     dusername = request.form.get("user")
     dname = request.form.get("name")
     dsex = request.form.get("sex")
-    userid = request.form.get("idnum")
-    dbirth = request.form.get("birth")
+    userid = request.form.get("idnum") #车牌
     dtel = request.form.get("tel")
-
+    type = request.form.get("ct")
+    color = request.form.get("color")
     # carnum = request.form.get("carnum")
-    my = PYSQL('localhost', 'test', '123', 'pickme')
-    sql = "insert into driver(dusername, dname, dsex, userid, dbirth, dtel) " \
-          "values('{}','{}','{}','{}','{}','{}')".format(dusername, dname, dsex, userid, dbirth, dtel)
-    result = my.insert_date(sql)
+    my.connect()
+    sql = "select sname,stel from student where susername='{}'".format(dusername)
+    rs = my.select_data(sql)
+    print(rs[0])
+    if rs[0][0] == dname and rs[0][1] == dtel:
+        sql = "insert into driver(dusername, dname, userid, dtel, cycletype, color) " \
+              "values('{}','{}','{}','{}','{}','{}')".format(dusername, dname, userid, dtel, type,color)
+        result = my.insert_date(sql)
 
-    if result:
-        msg = 'success'
-        status = 1
+        if result:
+            msg = 'success'
+            status = 1
+        else:
+            status = -1
+            msg = 'unkown wrong'
     else:
         status = -1
-        sql = "select dusername from driver where dusername='{}'".format(dusername)
-        result = my.select_data(sql)
-        if result:
-            msg = '该用户已认证'
-        else:
-            sql = "select userid from driver where userid='{}'".format(userid)
-            result = my.select_data(sql)
-            if result:
-                msg = '身份证已被使用'
-            else:
-                '''
-                sql = "select sinfo from student where sinfo='{}'".format(sinfo)
-                result = my.select_data(sql)
-                if result:
-                    msg = '学号已被使用'
-                else:
-                '''
-
-                msg = 'unkown wrong'
+        msg = "姓名与之前不符"
     my.close()
     # print(msg)
     res = {
@@ -646,72 +635,35 @@ def get_info():
     '''
     query database
     '''
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     # print(cursor)
-    sql = "SELECT username FROM users where username='{}'".format(username)
+
+
+    sql = "SELECT dusername FROM driver where dusername='{}'".format(username)
     res = my.select_data(sql)
-
     if res:
-        sql = "SELECT dusername FROM driver where dusername='{}'".format(username)
-        res = my.select_data(sql)
-        if res:
-            sql = "SELECT dtel,userid,dname,dsex,dbirth FROM driver where dusername='{}'".format(username)
-            suer1 = my.select_data(sql)
-            suer = suer1[0]
-            isvalid = 1
-            res = {
-                "status": 0,
-                "data": {
-                    "msg": "seccess",
-                    "username": username,
-                    "tel": suer[0],
-                    "userid": suer[1],
-                    "name": suer[2],
-                    "sex": suer[3],
-                    "birth": suer[4],
-                    "isvalid": isvalid
-                }
-            }
-        else:
-            sql = "SELECT stel,userid,sname,ssex,sbirth FROM student where susername='{}'".format(username)
-            suer1 = my.select_data(sql)
-            isvalid = 0
-            if suer1:
-
-                suer = suer1[0]
-                res = {
-                    "status": 0,
-                    "data": {
-                        "msg": "seccess",
-                        "username": username,
-                        "tel": suer[0],
-                        "userid": suer[1],
-                        "name": suer[2],
-                        "sex": suer[3],
-                        "birth": suer[4],
-                        "isvalid": isvalid
-                    }
-                }
-            else:
-                msg = 'can not find data'
-
-                res = {
-                    "status": -1,
-                    "data": {
-                        "msg": msg,
-                        "isvalid":isvalid
-                    }
-                }
-
+        isvalid = 1
     else:
-        msg = 'can not find the user'
+        isvalid = 0
+    sql = "SELECT stel,userid,sname,ssex,sbirth FROM student where susername='{}'".format(username)
+    suer1 = my.select_data(sql)
+    if suer1:
+        suer = suer1[0]
         res = {
-            "status": -1,
+            "status": 0,
             "data": {
-                "msg": msg,
-
+                "msg": "seccess",
+                "username": username,
+                "tel": suer[0],
+                "userid": suer[1],
+                "name": suer[2],
+                "sex": suer[3],
+                "birth": suer[4],
+                "isvalid": isvalid
             }
         }
+
+
     my.close()
 
     return json.dumps(res, ensure_ascii=False)
@@ -727,7 +679,7 @@ def register():
     '''
     add new user into database
     '''
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
     sql = "insert into users values('{}','{}')".format(username, password)
     result = my.insert_date(sql)
     if result:
@@ -763,7 +715,7 @@ def login():
     query database
     '''
     # print(res)
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
 
     sql = "SELECT username,userpwd FROM users where username='{}' and userpwd='{}'".format(username, password)
     result = my.select_data(sql)
@@ -799,7 +751,7 @@ def login():
 def isoddone():
     username = request.args.get('user')
     type = request.args.get('type')
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+    my.connect()
 
     if int(type) == 0:
         sql = "select * from orders where finish is NULL and susername='{}'".format(username)
@@ -896,7 +848,8 @@ def mkres(res):
 @app.route('/finish')
 def finish():
     oid = request.args.get('oid')
-    my = PYSQL('localhost', 'test', '123', 'pickme')
+
+
     sql = "select finish from orders where orderid={}".format(oid)
     result = my.select_data(sql)
     print(result)
